@@ -17,12 +17,13 @@ A production-style digital menu page widget for restaurant businesses integrated
 - [Running the App](#running-the-app)
 - [API Endpoints](#api-endpoints)
 - [NLP Search](#nlp-search)
+- [NLP Test Report](#nlp-test-report)
 - [Recommendations](#recommendations)
 - [Dynamic SEO](#dynamic-seo)
 - [Widget Embed Code](#widget-embed-code)
-- [NLP Test Report](#nlp-test-report)
 - [Architecture](#architecture)
 - [Database Schema](#database-schema)
+- [Assumptions](#assumptions)
 
 ---
 
@@ -30,8 +31,8 @@ A production-style digital menu page widget for restaurant businesses integrated
 
 - **Embeddable Widget** — drop into any website using a script tag or iframe
 - **Live Menu Data** — fetches categories and products via Datumart API or mock adapter
-- **NLP Smart Search** — understands natural language queries like *"spicy veg starter under 6 pounds"*
-- **Recommendations** — shows *"You may also like"* based on category, diet, price and spice level
+- **NLP Smart Search** — understands natural language queries like *"spicy veg starter under £6"*
+- **Recommendations** — shows *You may also like* based on category, diet, price and spice level
 - **Dynamic SEO** — generates title, meta description, Open Graph tags and JSON-LD structured data
 - **Veg / Non-Veg Filter** — one-click dietary filtering
 - **Responsive Design** — works on mobile, tablet and desktop
@@ -60,36 +61,35 @@ A production-style digital menu page widget for restaurant businesses integrated
 datumart-digital-menu-widget/
 │
 ├── apps/
-│   └── web-next/                    # Next.js frontend
+│   └── web-next/
 │       ├── app/
 │       │   ├── globals.css
 │       │   ├── layout.tsx
 │       │   ├── page.tsx
 │       │   └── menu/
 │       │       └── [vendorSlug]/
-│       │           └── page.tsx     # SSR menu page with SEO
+│       │           └── page.tsx
 │       ├── components/
-│       │   ├── MenuWidget.tsx       # Main widget component
-│       │   ├── ProductCard.tsx      # Individual product card
-│       │   ├── MenuSearch.tsx       # NLP search input
-│       │   └── CategoryTabs.tsx     # Category navigation
+│       │   ├── MenuWidget.tsx
+│       │   ├── ProductCard.tsx
+│       │   ├── MenuSearch.tsx
+│       │   └── CategoryTabs.tsx
 │       ├── lib/
 │       │   └── seo/
-│       │       └── menuSeo.ts       # SEO tag generator
+│       │       └── menuSeo.ts
 │       ├── next.config.js
 │       ├── tailwind.config.js
-│       ├── tsconfig.json
-│       └── .env.local
+│       └── tsconfig.json
 │
-└── server/                          # Node.js + Express backend
+└── server/
     ├── config/
-    │   └── db.js                    # MongoDB connection
+    │   └── db.js
     ├── models/
     │   ├── Vendor.js
     │   ├── Category.js
     │   ├── Product.js
-    │   ├── MenuIndex.js             # NLP search index
-    │   └── MenuEvent.js             # Analytics events
+    │   ├── MenuIndex.js
+    │   └── MenuEvent.js
     ├── routes/
     │   ├── menu.routes.js
     │   ├── category.routes.js
@@ -98,25 +98,25 @@ datumart-digital-menu-widget/
     │   └── event.routes.js
     ├── services/
     │   ├── menu.service.js
-    │   ├── nlpSearch.service.js     # NLP engine
+    │   ├── nlpSearch.service.js
     │   ├── recommendation.service.js
     │   └── seo.service.js
     ├── seed/
-    │   ├── seedData.js              # Sample restaurant data
-    │   └── seedDatabase.js          # Seed script
-    ├── index.js                     # Server entry point
-    ├── .env
-    └── .env.example
+    │   ├── seedData.js
+    │   └── seedDatabase.js
+    ├── index.js
+    ├── .env.example
+    └── .env
 ```
 
 ---
 
 ## Prerequisites
 
-- **Node.js** v18 or higher
-- **MongoDB** running locally OR a MongoDB Atlas URI
-- **npm** v9 or higher
-- **Git**
+- Node.js v18 or higher
+- MongoDB running locally OR a MongoDB Atlas URI
+- npm v9 or higher
+- Git
 
 ---
 
@@ -150,15 +150,15 @@ cd server
 cp .env.example .env
 ```
 
-Open `server/.env` and fill in your values — see [Environment Variables](#environment-variables) below.
+Edit `server/.env` and fill in your values.
 
-Create `apps/web-next/.env.local` and add:
+Create `apps/web-next/.env.local`:
 
-```env
+```
 NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
-### 5. Start MongoDB locally
+### 5. Start MongoDB
 
 ```bash
 mongod
@@ -193,7 +193,7 @@ Expected output:
 
 ## Environment Variables
 
-### `server/.env`
+### server/.env
 
 | Variable | Description | Example |
 |----------|-------------|---------|
@@ -202,7 +202,7 @@ Expected output:
 | `NODE_ENV` | Environment | `development` |
 | `ALLOWED_ORIGINS` | Allowed CORS origins | `http://localhost:3000` |
 
-### `apps/web-next/.env.local`
+### apps/web-next/.env.local
 
 | Variable | Description | Example |
 |----------|-------------|---------|
@@ -221,16 +221,12 @@ cd server
 npm run dev
 ```
 
-Server runs at `http://localhost:5000`
-
 **Terminal 2 — Frontend**
 
 ```bash
 cd apps/web-next
 npm run dev
 ```
-
-App runs at `http://localhost:3000`
 
 Open in browser: **http://localhost:3000/menu/anjappar-wimbledon**
 
@@ -242,7 +238,7 @@ Open in browser: **http://localhost:3000/menu/anjappar-wimbledon**
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/menu/:vendorId` | Full menu payload — vendor, categories, products |
+| GET | `/api/menu/:vendorId` | Full menu payload |
 | GET | `/api/menu/slug/:vendorSlug` | Menu by vendor slug |
 | GET | `/api/menu/:vendorId/search?q=` | NLP smart search |
 | GET | `/api/menu/:vendorId/recommendations?productId=` | Product recommendations |
@@ -252,44 +248,41 @@ Open in browser: **http://localhost:3000/menu/anjappar-wimbledon**
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/categories/:vendorId` | Published categories for vendor |
-| GET | `/api/products/:vendorId` | Active products — supports filters |
+| GET | `/api/categories/:vendorId` | Published categories |
+| GET | `/api/products/:vendorId` | Active products with filters |
 | GET | `/api/products/:vendorId/:productId` | Single product detail |
 
 **Product filter query params:**
 
 ```
-GET /api/products/:vendorId?isVeg=true&maxPrice=8&inStock=true&categoryId=xxx
+GET /api/products/:vendorId?isVeg=true&maxPrice=8&inStock=true
 ```
 
 ### Analytics
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/events` | Track a menu analytics event |
+| POST | `/api/events` | Track analytics event |
 | GET | `/health` | Server health check |
 
 ---
 
 ## NLP Search
 
-The NLP engine combines **Fuse.js fuzzy matching** with **intent classification** to understand natural language queries.
+The NLP engine combines Fuse.js fuzzy matching with intent classification.
 
 ### How it works
 
 ```
 User types: "crispy veg starter under 6 pounds"
-       ↓
+
 Step 1 — Fuse.js fuzzy match against searchableText index
-       ↓
 Step 2 — Extract intent tags:
-         dietary  = "veg"
-         taste    = "crispy"
-         course   = "starter"
-         budget   = "under £6"
-       ↓
+         dietary  = veg
+         taste    = crispy
+         course   = starter
+         budget   = under £6
 Step 3 — Combined score: Fuse score (60%) + Intent score (40%)
-       ↓
 Step 4 — Return ranked results with reason text
 ```
 
@@ -305,12 +298,6 @@ Step 4 — Return ranked results with reason text
       "name": "Samosa (4)",
       "score": 0.91,
       "reason": "Matches vegetarian, crispy description, starter category and price under £6."
-    },
-    {
-      "productId": "def456",
-      "name": "Onion Bhaji (4)",
-      "score": 0.74,
-      "reason": "Matches vegetarian, crispy description, starter category."
     }
   ],
   "recommendations": [
@@ -344,7 +331,7 @@ Step 4 — Return ranked results with reason text
 
 ## Recommendations
 
-The recommendation engine scores products based on four factors:
+Products are scored based on four factors:
 
 | Factor | Weight |
 |--------|--------|
@@ -358,15 +345,13 @@ The recommendation engine scores products based on four factors:
 
 ## Dynamic SEO
 
-The widget generates SEO tags server-side using Next.js SSR so Google can index every menu page.
+The widget generates SEO tags server-side using Next.js SSR.
 
-### Generated Tags
+### Generated HTML tags
 
 ```html
 <title>Anjappar Wimbledon Menu - Veg Starters</title>
-<meta name="description"
-  content="Explore Veg Starters at Anjappar Wimbledon.
-           Try our Samosa (4), Paneer Tikka, Gobi 65 and more." />
+<meta name="description" content="Explore Veg Starters at Anjappar Wimbledon. Try our Samosa (4), Paneer Tikka, Gobi 65 and more." />
 <meta property="og:title" content="Anjappar Wimbledon Digital Menu" />
 <meta property="og:description" content="Discover dishes at Anjappar Wimbledon" />
 <meta property="og:type" content="website" />
@@ -382,7 +367,6 @@ The widget generates SEO tags server-side using Next.js SSR so Google can index 
   "provider": {
     "@type": "Restaurant",
     "name": "Anjappar Wimbledon",
-    "address": "12 High Street, Wimbledon, London SW19 5DX",
     "servesCuisine": ["South Indian", "Chettinad", "Tamil"]
   },
   "hasMenuSection": [
@@ -410,7 +394,7 @@ The widget generates SEO tags server-side using Next.js SSR so Google can index 
 
 ## Widget Embed Code
 
-Any website owner can embed the menu by copying this snippet into their HTML:
+Any website owner embeds the menu by copying this into their HTML:
 
 ```html
 <script src="https://cdn.datumart.co.uk/widgets/menu-widget.js"></script>
@@ -423,25 +407,23 @@ Any website owner can embed the menu by copying this snippet into their HTML:
 </div>
 ```
 
-The website owner only needs the `vendorId`. They do not need to know anything about MongoDB or the API.
-
 ---
 
 ## Architecture
 
 ```
-Restaurant Website (any CMS or custom site)
-              ↓
-    Embeddable Widget (React / Next.js)
-              ↓
-    Datumart API (Node.js / Express)
-       ↓              ↓
-  MongoDB Atlas    NLP Engine (Fuse.js)
-  ├── vendors
-  ├── categories
-  ├── products
-  ├── menuindexes   ← search index
-  └── menuevents    ← analytics
+Restaurant Website
+        ↓
+Embeddable Widget (React / Next.js)
+        ↓
+Datumart API (Node.js / Express)
+        ↓
+MongoDB Atlas
+├── vendors
+├── categories
+├── products
+├── menuindexes   (NLP search index)
+└── menuevents    (analytics)
 ```
 
 **Request flow:**
@@ -449,9 +431,9 @@ Restaurant Website (any CMS or custom site)
 1. Widget loads and reads `data-vendor-id` from the embed script
 2. Calls `GET /api/menu/slug/:vendorSlug` and receives full menu payload
 3. Next.js renders the page server-side for SEO
-4. Customer types a query → NLP engine scores and ranks products
-5. Customer views a product → recommendations engine suggests similar items
-6. Customer clicks Order Now → analytics event is posted to `/api/events`
+4. Customer types a query — NLP engine scores and ranks products
+5. Customer views a product — recommendations engine suggests similar items
+6. Customer clicks Order Now — analytics event is posted to `/api/events`
 
 ---
 
@@ -462,7 +444,7 @@ Restaurant Website (any CMS or custom site)
 | `vendors` | Restaurant configuration | name, slug, theme, currency, widgetConfig |
 | `categories` | Menu sections with parent-child nesting | vendorId, parentId, name, sortOrder, isPublished |
 | `products` | Menu items | vendorId, categoryId, price, isVeg, isNonVeg, currentStock |
-| `menuindexes` | NLP search and similarity index | searchableText, keywords, embedding (future) |
+| `menuindexes` | NLP search and similarity index | searchableText, keywords, embedding |
 | `menuevents` | Analytics event log | eventType, sessionId, query, productId, timestamp |
 
 ---
@@ -471,21 +453,21 @@ Restaurant Website (any CMS or custom site)
 
 | Location | Command | Description |
 |----------|---------|-------------|
-| `server/` | `npm run dev` | Start backend with nodemon hot-reload |
-| `server/` | `npm run seed` | Clear and re-seed MongoDB with sample data |
+| `server/` | `npm run dev` | Start backend with nodemon |
+| `server/` | `npm run seed` | Clear and re-seed MongoDB |
 | `server/` | `npm start` | Start backend without nodemon |
-| `apps/web-next/` | `npm run dev` | Start Next.js in development mode |
-| `apps/web-next/` | `npm run build` | Build Next.js for production |
-| `apps/web-next/` | `npm start` | Start Next.js production server |
+| `apps/web-next/` | `npm run dev` | Start Next.js development server |
+| `apps/web-next/` | `npm run build` | Build for production |
+| `apps/web-next/` | `npm start` | Start production server |
 
 ---
 
-## Assumptions and Design Decisions
+## Assumptions
 
-- **Fuse.js** is used for NLP in Week 1. Production would extend this with vector embeddings via OpenAI or MongoDB Atlas Vector Search using the `embedding` field already present in `MenuIndex`.
-- **Images** are served from Unsplash and Pexels CDNs. In production these would be uploaded to a CDN like Cloudflare or AWS S3.
-- **Payment checkout** is out of scope for Week 1. CTA buttons are placeholders ready for integration.
-- **Mock adapter pattern** is used — `seedData.js` follows the exact same JSON contract as the real Datumart API, so switching to live data requires only changing the API base URL.
+- **Fuse.js** is used for NLP in Week 1. Production would use vector embeddings via OpenAI or MongoDB Atlas Vector Search using the `embedding` field already in `MenuIndex`.
+- **Images** are served from Unsplash and Pexels CDNs. In production these would be stored on a CDN like Cloudflare or AWS S3.
+- **Payment checkout** is out of scope. CTA buttons are placeholders ready for integration.
+- **Mock adapter pattern** — `seedData.js` follows the exact same JSON contract as the real Datumart API so switching to live data requires only changing the API base URL.
 - **Soft deletes** are used throughout — records are never hard-deleted, only marked `isDeleted: true`.
 
 ---
@@ -493,5 +475,4 @@ Restaurant Website (any CMS or custom site)
 *Built as part of the Datumart Internship Assignment — Datum AI Labs*
 
 
-[Demo Video on Google Drive ](https://drive.google.com/file/d/1e72nAYhuvW61kNQIS4avESUgCSOnI1yS/view?usp=sharing)#   d a t u m a r t - d i g i t a l - m e n u - w i d g e t  
- 
+[Demo Video on Google Drive ](https://drive.google.com/file/d/1e72nAYhuvW61kNQIS4avESUgCSOnI1yS/view?usp=sharing)
